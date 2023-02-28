@@ -1,0 +1,156 @@
+---
+title: "Optimisation for global processing"
+author: "Florent Bédécarrats"
+date: "2023-02-28"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+Load libraries
+
+```{r}
+library(pbapply)
+library(devtools)
+library(tictoc)
+library(geodata)
+library(tmap)
+library(tidyverse)
+library(future)
+library(future.apply)
+library(mapme.biodiversity)
+library(sf)
+#load_all()
+```
+
+Build honeycomb Madagascar
+```{r}
+# Custom Input
+data_dir = file.path(getwd(), 'data')
+country = "Madagascar"
+epsg_code = 32738
+gridSize = 1000 # 1km2
+
+
+dir.create("data")
+
+# Load Country Polygon
+gadm_init <- gadm(country = country, resolution = 1, level = 0, path = data_dir) %>%
+  st_as_sf()
+
+gadm <- gadm_init %>%
+  st_transform(crs = epsg_code)
+#gadm = readRDS(paste0(getwd(), "/data/gadm41_MDG_0_pk.rds")) %>% st_as_sf()
+
+# Make bounding box of country polygon
+bbox = st_bbox(gadm) %>% st_as_sfc() %>% st_as_sf() 
+
+# Make a Grid to the extent of bounding box
+
+tic()
+grid <- st_make_grid(bbox, cellsize = gridSize)
+toc()
+tic()
+terrestrial_grid <- st_intersects(gadm, grid) %>%# Crop to country boundary
+  unlist()
+toc()
+tic()
+grid <- grid[sort(terrestrial_grid)] %>%
+  st_sf() %>%
+  mutate(gridID = seq(1:nrow(.))) # Add id for grid cells
+toc()
+tic()
+grid_test <- grid %>%
+  mutate(area = st_area(.))
+toc()
+
+
+# get the first 10 000
+grid_small <- grid[1:10000,]
+```
+
+
+```{r}
+dir.create("data/mapme")
+
+
+# Test with 4 cores
+grid_small <- init_portfolio(x = grid_small, 
+                                years = 2000:2020,
+                                outdir = "data/mapme",
+                                cores = 4,
+                                add_resources = TRUE,
+                                verbose = TRUE)
+# Get GFW data
+grid_small <- get_resources(x = grid_small, 
+                               resources = c("gfw_treecover", "gfw_lossyear", 
+                                             "gfw_emissions"))
+# With 4 cores (without portfolio initialization)
+start_4 <- tic()
+grid_small <- calc_indicators(x = grid_small,
+                                 indicators = "treecover_area_and_emissions", 
+                                 min_cover = 10, min_size = 1)
+duration_4 <- toc()
+# elapsed=32m 13s
+
+# With 8 cores 
+start_8 <- tic()
+grid_small_8 <- init_portfolio(x = grid_small, 
+                                  years = 2000:2020,
+                                  outdir = "data/mapme",
+                                  cores = 8,
+                                  add_resources = TRUE,
+                                  verbose = TRUE)
+grid_small_8 <- calc_indicators(x = grid_small_8,
+                                   indicators = "treecover_area_and_emissions", 
+                                   min_cover = 10, min_size = 1)
+
+# With 16 cores
+grid_small_16 <- init_portfolio(x = grid_small, 
+                                   years = 2000:2020,
+                                   outdir = "data/mapme",
+                                   cores = 16,
+                                   add_resources = TRUE,
+                                   verbose = TRUE)
+grid_small_16 <- calc_indicators(x = grid_small_16,
+                                    indicators = "treecover_area_and_emissions", 
+                                    min_cover = 10, min_size = 1)
+
+# With 24 cores
+grid_small_24 <- init_portfolio(x = grid_small, 
+                                   years = 2000:2020,
+                                   outdir = "data/mapme",
+                                   cores = 24,
+                                   add_resources = TRUE,
+                                   verbose = TRUE)
+grid_small_24 <- calc_indicators(x = grid_small_24,
+                                    indicators = "treecover_area_and_emissions", 
+                                    min_cover = 10, min_size = 1)
+# elapsed=11m 42s
+
+# With 24 cores
+grid_small_24 <- init_portfolio(x = grid_small, 
+                                   years = 2000:2020,
+                                   outdir = "data/mapme",
+                                   cores = "future",
+                                   add_resources = TRUE,
+                                   verbose = TRUE)
+plan(sequential)
+plan(cluster, workers = 24)
+grid_small_24 <- calc_indicators(x = grid_small_24,
+                                    indicators = "treecover_area_and_emissions", 
+                                    min_cover = 10, min_size = 1)
+# elapsed=12m 37s
+
+# multisession
+plan(sequential)
+plan(multisession, workers = 24)
+grid_small_24 <- calc_indicators(x = grid_small_24,
+                                    indicators = "treecover_area_and_emissions", 
+                                    min_cover = 10, min_size = 1)
+# elapsed=13m 10s
+
+
+```
+
+
