@@ -13,6 +13,7 @@
 #' @source \url{https://data.ceda.ac.uk/neodc/esacci/fire/data/burned_area/MODIS/pixel/v5.1/}
 #' @include register.R
 #' @export
+
 get_firecci51 <- function(years = 2001:2020, months = 1:12) {
   now <- as.numeric(format(Sys.Date(), "%Y"))
   years <- check_available_years(years, 2001:now, "firecci51")
@@ -57,24 +58,33 @@ get_firecci51 <- function(years = 2001:2020, months = 1:12) {
 
     # Expand bounding boxes to match the number of URLs
     expanded_bboxs <- rep(bboxs, each = length(years) * length(months))
-    fps <- purrr::map(expanded_bboxs, function(x) {
+
+    # Create initial fps object
+    fps <- purrr::map_dfr(expanded_bboxs, function(x) {
       names(x) <- c("xmin", "ymin", "xmax", "ymax")
       bbox <- st_bbox(x, crs = "EPSG:4326")
       st_as_sf(st_as_sfc(bbox))
     })
-    fps <- st_as_sf(purrr::list_rbind(fps))
+
+    # Create a new data frame to store all fps entries
+    all_fps <- list()
 
     # Add the source field with paths to the TIFF files within the TAR archives
-    fps <- purrr::map_dfr(urls, function(url) {
+    for (i in seq_along(urls)) {
+      url <- urls[i]
+      bbox <- fps[i, ]
       tiff_files <- c("-JD.tif", "-CL.tif", "-LC.tif")
-      purrr::map_dfr(tiff_files, function(tiff_ext) {
+      for (tiff_ext in tiff_files) {
         tiff_file <- sub("\\.tar\\.gz$", tiff_ext, basename(url))
         tar_path <- paste0("/vsitar//vsicurl/", url, "/", tiff_file)
-        fps_subset <- fps
-        fps_subset[["source"]] <- tar_path
-        return(fps_subset)
-      })
-    })
+        bbox_copy <- bbox
+        bbox_copy[["source"]] <- tar_path
+        all_fps <- append(all_fps, list(bbox_copy))
+      }
+    }
+
+    # Combine all fps entries into a single data frame
+    fps <- bind_rows(all_fps)
 
     make_footprints(
       fps,
@@ -82,16 +92,6 @@ get_firecci51 <- function(years = 2001:2020, months = 1:12) {
       co = c("-co", "COMPRESS=DEFLATE")
     )
   }
-}
-
-# Helper function to list files in a TAR archive
-list_tar_files <- function(tar_path, pattern = NULL) {
-  cmd <- sprintf("tar -tf %s", tar_path)
-  files <- system(cmd, intern = TRUE)
-  if (!is.null(pattern)) {
-    files <- grep(pattern, files, value = TRUE)
-  }
-  files
 }
 
 # Register the resource
