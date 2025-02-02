@@ -117,14 +117,6 @@ register_resource(
 )
 
 register_resource(
-  name = "firecci51",
-  description = "ESA FireCCI51 Julian Day of first burned area detection",
-  licence = "CC-BY-4.0",
-  source = "https://data.ceda.ac.uk/neodc/esacci/fire/data/burned_area/MODIS/pixel/v5.1/",
-  type = "raster"
-)
-
-register_resource(
   name = "firecci51_jd",
   description = "ESA FireCCI51 Julian Day of first burned area detection",
   licence = "CC-BY-4.0",
