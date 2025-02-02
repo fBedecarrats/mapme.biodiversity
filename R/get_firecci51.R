@@ -85,19 +85,64 @@ get_firecci51 <- function(years = 2001:2020, months = 1:12) {
 
     # Combine all fps entries into a single data frame
     fps <- bind_rows(all_fps)
-
-    make_footprints(
+    fps <- make_footprints(
       fps,
       what = "raster",
       co = c("-co", "COMPRESS=DEFLATE")
     )
+  # Subset rows based on the filename pattern
+  jd_fps <- fps[grepl("-JD\\.tif$", fps$filename), ]
+  cl_fps <- fps[grepl("-CL\\.tif$", fps$filename), ]
+  lc_fps <- fps[grepl("-LC\\.tif$", fps$filename), ]
+
+  # Register subsets independently
+  .add_resource(list("firecci51_jd" = jd_fps))
+  .add_resource(list("firecci51_cl" = cl_fps))
+  .add_resource(list("firecci51_lc" = lc_fps))
+
+  # Also register resources together
+  return(fps)
+
   }
 }
 
-# Register the resource
+
+# Register the resources
 register_resource(
   name = "firecci51",
   description = "ESA FireCCI51 Burned Area Product",
+  licence = "CC-BY-4.0",
+  source = "https://data.ceda.ac.uk/neodc/esacci/fire/data/burned_area/MODIS/pixel/v5.1/",
+  type = "raster"
+)
+
+register_resource(
+  name = "firecci51",
+  description = "ESA FireCCI51 Julian Day of first burned area detection",
+  licence = "CC-BY-4.0",
+  source = "https://data.ceda.ac.uk/neodc/esacci/fire/data/burned_area/MODIS/pixel/v5.1/",
+  type = "raster"
+)
+
+register_resource(
+  name = "firecci51_jd",
+  description = "ESA FireCCI51 Julian Day of first burned area detection",
+  licence = "CC-BY-4.0",
+  source = "https://data.ceda.ac.uk/neodc/esacci/fire/data/burned_area/MODIS/pixel/v5.1/",
+  type = "raster"
+)
+
+register_resource(
+  name = "firecci51_cl",
+  description = "ESA FireCCI51 Confidence Level of burned area detection",
+  licence = "CC-BY-4.0",
+  source = "https://data.ceda.ac.uk/neodc/esacci/fire/data/burned_area/MODIS/pixel/v5.1/",
+  type = "raster"
+)
+
+register_resource(
+  name = "firecci51_lc",
+  description = "ESA FireCCI51 Land Cover of detected burned area",
   licence = "CC-BY-4.0",
   source = "https://data.ceda.ac.uk/neodc/esacci/fire/data/burned_area/MODIS/pixel/v5.1/",
   type = "raster"
