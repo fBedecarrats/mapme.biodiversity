@@ -1,91 +1,85 @@
-#' Calculate Annual Burned Area based on FireCCI51
+#' Calculate Burned Area (JD channel) from FireCCI51
 #'
-#' Calculates Annual Burned Area based on the FireCCI51 product.
+#' This function sums the area (ha) of pixels with Julian Day > 0 (burned),
+#' for each month (layer) in the firecci51_jd SpatRaster.
+#' The required resource is "firecci51_jd".
 #'
-#' The required resources for this indicator are:
-#'  - [firecci51]
-#'
-#' @name burned_area_cci
-#' @param engine The preferred processing functions from either one of "zonal",
-#'   "extract" or "exactextract" as character.
+#' @name calc_burned_area_cci_jd
+#' @param engine A character, one of "zonal", "extract", or "exactextract".
 #' @keywords indicator
-#' @returns A function that returns an indicator tibble with variable burned
-#'   area and corresponding area (in ha) as values.
-#' @references Chuvieco, E., et al. ESA CCI ECV Fire Disturbance: DLR-CCI-FIRE-MODIS-BA-AREA_2-v5.1
-#'   \doi{https://doi.org/10.5285/528ca4a4-9b42-4b9a-995b-1c9f6a6c2bce}
+#' @returns A closure that returns a tibble with columns `datetime, variable, unit, value`
 #' @include register.R
 #' @export
-#' @examples
-#' \dontshow{
-#' mapme.biodiversity:::.copy_resource_dir(file.path(tempdir(), "mapme-data"))
-#' }
-#' \dontrun{
-#' library(sf)
-#' library(mapme.biodiversity)
-#'
-#' outdir <- file.path(tempdir(), "mapme-data")
-#' dir.create(outdir, showWarnings = FALSE)
-#'
-#' mapme_options(
-#'   outdir = outdir,
-#'   verbose = FALSE
-#' )
-#'
-#' aoi <- system.file("extdata", "sierra_de_neiba_478140_2.gpkg",
-#'   package = "mapme.biodiversity"
-#' ) %>%
-#'   read_sf() %>%
-#'   get_resources(get_firecci51(years = 2021)) %>%
-#'   calc_indicators(calc_burned_area_cci(engine = "extract")) %>%
-#'   portfolio_long()
-#'
-#' aoi
-#' }
-calc_burned_area_cci <- function(engine = "extract") {
+calc_burned_area_cci_jd <- function(engine = "extract") {
   engine <- check_engine(engine)
 
   function(x,
-           firecci51 = NULL,
-           name = "burned_area_cci",
+           firecci51_jd = NULL,
+           name = "burned_area_cci_jd",
            mode = "asset",
            aggregation = "sum",
            verbose = mapme_options()[["verbose"]]) {
-    if (is.null(firecci51)) {
+
+    # If no overlap or resource not fetched, return NULL
+    if (is.null(firecci51_jd)) {
       return(NULL)
     }
 
-    # Transform AOI to match CRS of firecci51 data
-    x_proj <- st_transform(x, st_crs(firecci51))
+    # Remove negative JD
+    firecci51_jd <- terra::clamp(firecci51_jd, lower = 0, upper = Inf, values = FALSE)
 
-    # Mask and process firecci51 data with AOI
-    firecci51 <- terra::mask(firecci51, x_proj)
-    firecci51 <- terra::subst(firecci51, from = c(-2, -1, 0, NA), to = 0, others = 1)
-    arearaster <- cellSize(firecci51, mask = FALSE, unit = "ha")
-    firecci51 <- firecci51 * arearaster
+    # Convert to 1 or 0
+    firecci51_jd <- terra::ifel(firecci51_jd > 0, 1, 0)
 
-    # Calculate statistics
-    stats <- select_engine(
-      x = x_proj,
-      raster = firecci51,
-      stats = "sum",
+    # Convert to area (ha)
+    firecci51_jd <- terra::cellSize(firecci51_jd, mask = TRUE, unit = "ha")
+
+    # Parse monthly layer names -> a date
+    layer_names  <- names(firecci51_jd)
+    # e.g. "20010101-ESACCI-L3S_FIRE-BA-MODIS-AREA_1-fv5.1-JD"
+    # first 8 chars: "20010101" => as.Date("2001-01-01")
+    dates <- as.Date(substr(layer_names, 1, 8), format = "%Y%m%d")
+    datetimes <- as.POSIXct(paste0(dates, "T00:00:00Z"), tz = "UTC")
+
+    # Sum area with select_engine
+    results <- select_engine(
+      x      = x,
+      raster = firecci51_jd,
+      stats  = "sum",
       engine = engine,
-      name = "burned_area_cci",
-      mode = "asset"
+      mode   = mode
     )
 
-    # Process and format output
-    names(stats) <- "value"
-    dates <- gsub("^.*?\\.A([0-9]+)\\..*$", "\\1", names(firecci51))
-    dates <- as.POSIXct(paste0(as.Date(dates, "%Y%j"), "T00:00:00Z"))
-    stats[["datetime"]] <- dates
-    stats[["unit"]] <- "ha"
-    stats[["variable"]] <- "burned_area_cci"
-    stats[, c("datetime", "variable", "unit", "value")]
+    # Tidy up into columns [datetime, variable, unit, value]
+    if (mode == "portfolio") {
+      # One data.frame per row in x
+      purrr::map(results, function(df_per_poly) {
+        df_per_poly %>%
+          tidyr::pivot_longer(everything(), names_to = "layer", values_to = "value") %>%
+          dplyr::mutate(
+            datetime = datetimes[dplyr::row_number()],
+            variable = name,
+            unit     = "ha"
+          ) %>%
+          dplyr::select(datetime, variable, unit, value)
+      })
+    } else {
+      # mode = "asset" => single asset (should be a single data frame)
+      df_1 <- results[[1]]
+      df_1 %>%
+        tidyr::pivot_longer(everything(), names_to = "layer", values_to = "value") %>%
+        dplyr::mutate(
+          datetime = datetimes[dplyr::row_number()],
+          variable = name,
+          unit     = "ha"
+        ) %>%
+        dplyr::select(datetime, variable, unit, value)
+    }
   }
 }
 
 register_indicator(
-  name = "burned_area_cci",
-  description = "Annual burned area detected by FireCCI51",
-  resources = "firecci51"
+  name        = "burned_area_cci_jd",
+  description = "Sums area of positive JD pixels in FireCCI51 for each month",
+  resources   = "firecci51_jd"
 )
