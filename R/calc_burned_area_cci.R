@@ -24,6 +24,13 @@ calc_burned_area_cci_jd <- function(engine = "extract") {
     if (is.null(firecci51_jd)) {
       return(NULL)
     }
+    
+    # Parse monthly layer names -> a date
+    layer_names  <- names(firecci51_jd)
+    # e.g. "20010101-ESACCI-L3S_FIRE-BA-MODIS-AREA_1-fv5.1-JD"
+    # first 8 chars: "20010101" => as.Date("2001-01-01")
+    dates <- as.Date(substr(layer_names, 1, 8), format = "%Y%m%d")
+    datetimes <- as.POSIXct(paste0(dates, "T00:00:00Z"), tz = "UTC")
 
     # Remove negative JD
     firecci51_jd <- terra::clamp(firecci51_jd, lower = 0, upper = Inf, values = FALSE)
@@ -33,13 +40,6 @@ calc_burned_area_cci_jd <- function(engine = "extract") {
 
     # Convert to area (ha)
     firecci51_jd <- terra::cellSize(firecci51_jd, mask = TRUE, unit = "ha")
-
-    # Parse monthly layer names -> a date
-    layer_names  <- names(firecci51_jd)
-    # e.g. "20010101-ESACCI-L3S_FIRE-BA-MODIS-AREA_1-fv5.1-JD"
-    # first 8 chars: "20010101" => as.Date("2001-01-01")
-    dates <- as.Date(substr(layer_names, 1, 8), format = "%Y%m%d")
-    datetimes <- as.POSIXct(paste0(dates, "T00:00:00Z"), tz = "UTC")
 
     # Sum area with select_engine
     results <- select_engine(
@@ -65,6 +65,7 @@ calc_burned_area_cci_jd <- function(engine = "extract") {
       })
     } else {
       # mode = "asset" => single asset (should be a single data frame)
+      # df_1 <- results[[1]]
       df_1 <- results[[1]]
       df_1 %>%
         tidyr::pivot_longer(everything(), names_to = "layer", values_to = "value") %>%
