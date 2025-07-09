@@ -17,7 +17,7 @@
 #' @source \url{https://planetarycomputer.microsoft.com/dataset/modis-14A2-061}
 #' @include register.R
 #' @export
-get_mod14a2 <- function(years = 2000:2022) {
+get_mod14a2 <- function(years = 2000:2025) {
   check_namespace("rstac")
   now <- as.numeric(format(Sys.Date(), "%Y"))
   years <- check_available_years(years, 2000:now, "mod14a2")
