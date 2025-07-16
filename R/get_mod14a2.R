@@ -1,9 +1,8 @@
-#' MODIS Thermal Anomalies & Fire 8-Day (MOD14A2)
+#' MODIS Thermal Anomalies & Fire 8-Day (MOD14A2 and MYD14A2)
 #'
-#' The MOD14A2 Version 6.1 product provides an 8-day composite of global thermal
-#' anomalies and fire pixels derived from the MODIS sensor aboard the Terra satellite.
-#' The product provides fire detection (FireMask), quality information, and confidence
-#' estimates at a spatial resolution of 1km.
+#' The MOD14A2 and MYD14A2 Version 6.1 products provide an 8-day composite of global thermal
+#' anomalies and fire pixels derived from the MODIS sensors aboard the Terra (MOD14A2) and Aqua (MYD14A2) satellites.
+#' The Planetary Computer exposes both datasets in a single STAC collection (`modis-14A2-061`), and this function retrieves both.
 #'
 #' The FireMask layer includes values indicating fire detection confidence,
 #' no fire, cloud, water, and other classes, with fire classes starting at value 7.
@@ -12,7 +11,7 @@
 #' @param years Numeric vector of years (>=2000) for which the product should be fetched.
 #' @keywords resource
 #' @returns A function that returns an `sf` footprint object.
-#' @references Giglio, L., et al. MODIS/Terra Thermal Anomalies/Fire 8-Day L3 Global 1km SIN Grid V061. 2021.
+#' @references Giglio, L., et al. MODIS/Terra+Aqua Thermal Anomalies/Fire 8-Day L3 Global 1km SIN Grid V061. 2021.
 #'   \doi{https://doi.org/10.5067/MODIS/MOD14A2.061}
 #' @source \url{https://planetarycomputer.microsoft.com/dataset/modis-14A2-061}
 #' @include register.R
@@ -72,7 +71,7 @@ get_mod14a2 <- function(years = 2000:2025) {
 
 register_resource(
   name = "mod14a2",
-  description = "MODIS 8-Day Thermal Anomalies and Fire Product (Terra)",
+  description = "MODIS 8-Day Thermal Anomalies and Fire Product (Terra + Aqua)",
   licence = "https://lpdaac.usgs.gov/data/data-citation-and-policies/",
   source = "https://planetarycomputer.microsoft.com/dataset/modis-14A2-061",
   type = "raster"
