@@ -78,7 +78,7 @@ get_mcd64a1 <- function(years = 2000:2022) {
 register_resource(
   name = "mcd64a1",
   description = "MODIS Burned Area Monthly Product (Aqua and Terra)",
-  licence = "https://lpdaac.usgs.gov/data/data-citation-and-policies/",
+  licence = "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
   source = "https://planetarycomputer.microsoft.com/dataset/modis-64A1-061",
   type = "raster"
 )
