@@ -96,10 +96,13 @@ Below is a list of the resources currently supported by
 | teow | Terrestrial Ecosystems of the World (TEOW) from WWF-US | unknown |
 | ucdp_ged | UCDP Georeferenced Event Dataset (UCDP GED) | CC-BY 4.0 |
 | vul_carbon | Amount of carbon that is vulnerable to a typical land use conversion event. | CC NC 4.0 |
-| worldclim_max_temperature | WorldClim - Monthly maximum temperature 1960 - 2021 | <https://www.worldclim.org/about.html> |
-| worldclim_min_temperature | WorldClim - Monthly minimum temperature 1960 - 2021 | <https://www.worldclim.org/about.html> |
-| worldclim_precipitation | WorldClim - Monthly precipitation 1960 - 2021 | <https://www.worldclim.org/about.html> |
+| worldclim_max_temperature | WorldClim - Monthly maximum temperature 1960 - 2024 | <https://www.worldclim.org/about.html> |
+| worldclim_min_temperature | WorldClim - Monthly minimum temperature 1960 - 2024 | <https://www.worldclim.org/about.html> |
+| worldclim_precipitation | WorldClim - Monthly precipitation 1960 - 2024 | <https://www.worldclim.org/about.html> |
 | worldpop | WorldPop - Unconstrained Global Mosaics 2000 - 2020 | CC-BY 4.0 |
+
+A more detailed list of these resources can be found in
+[this](extras/mapme.biodiversity_resources.xlsx) Excel file.
 
 Next, is a list of supported indicators.
 
@@ -211,9 +214,9 @@ aoi
     ##   WDPAID ISO3  assetid indicator        datetime            variable unit  value
     ##    <dbl> <chr>   <int> <chr>            <dttm>              <chr>    <chr> <dbl>
     ## 1 478140 DOM         1 treecover_area_… 2016-01-01 00:00:00 emissio… Mg    4296.
-    ## 2 478140 DOM         1 treecover_area_… 2016-01-01 00:00:00 treecov… ha    2370.
+    ## 2 478140 DOM         1 treecover_area_… 2016-01-01 00:00:00 treecov… ha    2372.
     ## 3 478140 DOM         1 treecover_area_… 2017-01-01 00:00:00 emissio… Mg    4970.
-    ## 4 478140 DOM         1 treecover_area_… 2017-01-01 00:00:00 treecov… ha    2358.
+    ## 4 478140 DOM         1 treecover_area_… 2017-01-01 00:00:00 treecov… ha    2360.
     ## # ℹ 1 more variable: geom <POLYGON [°]>
 
 ## Using cloud storages
