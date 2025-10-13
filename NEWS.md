@@ -1,4 +1,9 @@
-# mapme.biodiversity (development version)
+# mapme.biodiversity 0.9.5.9000
+
+## General
+
+-   modified `get_acled()` to align with the new ACLED API version ([440](https://github.com/mapme-initiative/mapme.biodiversity/issues/440))
+-   updated tests related to ACLED resource to reflect the changes in the `get_acled()` function
 
 # mapme.biodiversity 0.9.5
 
