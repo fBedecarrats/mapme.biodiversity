@@ -31,12 +31,7 @@ jobs:
         with:
           extra-packages: any::pkgdown, local::.
           needs: website
-          
-      - name: Copy extras folder for pkgdown
-        run: |
-          mkdir -p inst/pkgdown
-          cp -r extras inst/pkgdown/extras
-          
+
       - name: Deploy package
         if: github.event_name != 'pull_request'
         run: |
