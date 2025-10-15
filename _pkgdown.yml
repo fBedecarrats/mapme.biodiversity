@@ -3,6 +3,8 @@ destination: docs
 development:
   mode: auto
 template:
+  assets:
+    - extras
   bootstrap: 5
   bslib:
     fg: "#032733"
