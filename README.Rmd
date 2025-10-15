@@ -45,7 +45,7 @@ Below is a list of the resources currently supported by `mapme.biodiversity`.
 knitr::kable(mapme.biodiversity::available_resources()[, c("name", "description", "licence")])
 ```
 
-A more detailed list of these resources can be found in [this](extras/mapme.biodiversity_resources.xlsx) Excel file.
+A more detailed list of these resources can be found in [this](https://github.com/mapme-initiative/mapme.biodiversity/raw/refs/heads/main/extras/mapme.biodiversity_resources.xlsx) Excel file.
 
 Next, is a list of supported indicators.
 

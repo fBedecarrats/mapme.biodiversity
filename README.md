@@ -102,7 +102,8 @@ Below is a list of the resources currently supported by
 | worldpop | WorldPop - Unconstrained Global Mosaics 2000 - 2020 | CC-BY 4.0 |
 
 A more detailed list of these resources can be found in
-[this](extras/mapme.biodiversity_resources.xlsx) Excel file.
+[this](https://github.com/mapme-initiative/mapme.biodiversity/raw/refs/heads/main/extras/mapme.biodiversity_resources.xlsx)
+Excel file.
 
 Next, is a list of supported indicators.
 
