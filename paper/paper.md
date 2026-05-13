@@ -95,7 +95,7 @@ designed to handle a wider set of environmental and socio-economic data sources.
 
 \texttt{BON in a Box}, developed by the Group on Earth Observations
 Biodiversity Observation Network (GEO BON), is an open platform for
-biodiversity monitoring and indicator computation[@griffith_bon_2024]. 
+biodiversity monitoring and indicator computation [@griffith_bon_2024]. 
 It enables users to assemble and share modular workflows that generate 
 Essential Biodiversity Variables and policy-relevant indicators aligned 
 with the Kunming–Montreal Global Biodiversity Framework. While \texttt{mapme.biodiversity} 
@@ -115,7 +115,7 @@ development programs. At the French National Research Institute for
 Sustainable Development (IRD), the package is used in policy evaluation projects 
 and in initiatives aimed at strengthening research capacity in the Global South, 
 notably in Madagascar and Senegal. For instance, \texttt{mapme.biodiversity} is 
-a central to the pre-analysis plans and ongoing empirical studies evaluating the 
+central to the pre-analysis plans and ongoing empirical studies evaluating the 
 impacts of protected areas on deforestation, including a registered study 
 accepted at PLOS ONE [@ramiandrisoa2026]. The software has been incorporated into 
 training materials used for capacity-building activities with government analysts 
@@ -143,9 +143,8 @@ Key features include:
     processing of many regions of interest in a single run.
 -   **Reproducibility**: supports standardized, modular, scriptable
     workflows to enable replication of analysis, auditing and sharing.
--   **Extensibility**: the framework allows users to add datasets add
-    datasets and create their own indicators to meet specific research,
-    monitoring or evaluation needs.
+-   **Extensibility**: the framework allows users to add datasets and create 
+    their own indicators to meet specific research, monitoring or evaluation needs.
 -   **Interoperability**: outputs in standard geospatial formats,
     compatible with external GIS and statistical software.
 
