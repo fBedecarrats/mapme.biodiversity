@@ -1,0 +1,15 @@
+{
+  "permission": {
+    "webfetch": {
+      "https://human-settlement.emergency.copernicus.eu/*": "allow"
+    },
+    "edit": {
+      "*.md": "allow",
+      "*.R": "allow",
+      "*": "allow"
+    },
+    "executeCode": {
+      "*": "allow"
+    }
+  }
+}

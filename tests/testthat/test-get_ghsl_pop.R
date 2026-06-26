@@ -1,0 +1,15 @@
+test_that(".get_ghsl_pop works", {
+  skip_on_cran()
+  .clear_resources()
+  outdir <- file.path(tempdir(), "mapme.data")
+  .copy_resource_dir(outdir)
+  mapme_options(outdir = outdir, verbose = FALSE)
+
+  expect_error(get_ghsl_pop(1999))
+  expect_error(get_ghsl_pop(2003))
+  ggp <- get_ghsl_pop(years = 2020)
+  expect_silent(.check_resource_fun(ggp))
+  fps <- ggp(outdir = file.path(outdir, "ghsl_pop"))
+  expect_silent(.check_footprints(fps))
+  expect_equal(fps$filename, "GHS_POP_E2020_GLOBE_R2023A_4326_30ss_V1_0.tif")
+})
